@@ -18,7 +18,16 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
+            <meta-data android:name="android.notch_support" android:value="true" />
         </activity>
+        <activity android:name=".UnityPlayerActivity">
+
+        </activity>
+        <meta-data android:name="unity.build-id" android:value="5cb08a86-9f4a-4279-bb47-0c2fe7c4286d" />
+        <meta-data android:name="unity.splash-mode" android:value="0" />
+        <meta-data android:name="unity.splash-enable" android:value="True" />
+        <meta-data android:name="notch.config" android:value="portrait|landscape" />
     </application>
 
 </manifest>
