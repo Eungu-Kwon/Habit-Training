@@ -28,14 +28,28 @@ public class MainActivity extends Activity {
 
         m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
 
+        Button b = (Button)findViewById(R.id.button);
         Button b1 = (Button)findViewById(R.id.button1);
         Button b2 = (Button)findViewById(R.id.button2);
+        Button b3 = (Button)findViewById(R.id.button3);
+
         FrameLayout frame = (FrameLayout)findViewById(R.id.frameLayout);
         m_UnityPlayer = new UnityPlayer(this);
         //m_UnityPlayer.init(m_UnityPlayer.getSettings().getInt("gles_mode", 1), false);
         //LayoutParams lp = new LayoutParams (LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
         frame.addView(m_UnityPlayer.getView(), 0);
         //m_UnityPlayer.requestFocus();
+
+        b.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                db = m_helper.getWritableDatabase();
+                db.execSQL("CREATE TABLE IF NOT EXISTS training (_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, done INTEGER);");
+                Toast.makeText(MainActivity.this, "Add Table", Toast.LENGTH_LONG).show();
+                db.close();
+            }
+        });
+
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -54,6 +68,15 @@ public class MainActivity extends Activity {
                 c.moveToFirst();
                 db.close();
                 Toast.makeText(MainActivity.this, c.getString(0), Toast.LENGTH_LONG).show();
+            }
+        });
+
+        b3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                db = m_helper.getReadableDatabase();
+                db.execSQL("DROP TABLE IF EXISTS training;");
+                db.close();
             }
         });
     }
