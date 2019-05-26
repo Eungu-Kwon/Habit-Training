@@ -14,6 +14,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -47,12 +48,19 @@ public class MainActivity extends Activity {
         loadUnityView();
 
         ListView listview = (ListView)findViewById(R.id.list);
-        ArrayList<ListViewItem> items = new ArrayList<>();
+        final ArrayList<ListViewItem> items = new ArrayList<>();
         for(int i = 0; i < 15; i++){
-            items.add(new ListViewItem(R.drawable.ic_launcher_background, i + "번"));
+            items.add(new ListViewItem(R.drawable.checkbox_blank, i + "번"));
         }
-        ListViewAdapter adapter = new ListViewAdapter(this, R.layout.cell_title_linear, items);
+        final ListViewAdapter adapter = new ListViewAdapter(this, R.layout.cell_title_linear, items);
         listview.setAdapter(adapter);
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                items.get(position).setIcon(R.drawable.checkbox_checked);
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void loadUnityView(){

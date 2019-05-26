@@ -12,16 +12,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
-        <activity android:name=".MainActivity">
+        <activity android:name=".ShowStartingPage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".UnityPlayerActivity">
+        <activity android:name=".SettingNewGoal"></activity>
+        <activity android:name=".MainActivity"></activity>
 
-        </activity>
         <meta-data android:name="unity.build-id" android:value="5cb08a86-9f4a-4279-bb47-0c2fe7c4286d" />
         <meta-data android:name="unity.splash-mode" android:value="0" />
         <meta-data android:name="unity.splash-enable" android:value="True" />
