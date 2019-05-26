@@ -1,21 +1,32 @@
 package com.eungu.habittraining;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutCompat;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
 import com.unity3d.player.*;
 
+import java.util.ArrayList;
+
 public class MainActivity extends Activity {
+
     private DBHelper m_helper;
     private SQLiteDatabase db;
     private Cursor c;
@@ -25,60 +36,37 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        /*
+        db.execSQL("CREATE TABLE IF NOT EXISTS training (_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, done INTEGER);");
+        db.execSQL("INSERT INTO training VALUES (NULL, 'hello', 0);");
+        c = db.rawQuery("SELECT * FROM training;", null);
+        c.moveToFirst();
+        db.execSQL("DROP TABLE IF EXISTS training;");
+         */
+
+        loadUnityView();
+
+        ListView listview = (ListView)findViewById(R.id.list);
+        ArrayList<ListViewItem> items = new ArrayList<>();
+        for(int i = 0; i < 15; i++){
+            items.add(new ListViewItem(R.drawable.ic_launcher_background, i + "번"));
+        }
+        ListViewAdapter adapter = new ListViewAdapter(this, R.layout.cell_title_linear, items);
+        listview.setAdapter(adapter);
+    }
+
+    private void loadUnityView(){
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
 
         m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
 
-        Button b = (Button)findViewById(R.id.button);
-        Button b1 = (Button)findViewById(R.id.button1);
-        Button b2 = (Button)findViewById(R.id.button2);
-        Button b3 = (Button)findViewById(R.id.button3);
-
-        FrameLayout frame = (FrameLayout)findViewById(R.id.frameLayout);
+        FrameLayout frame = (FrameLayout)findViewById(R.id.unityLayout);
         m_UnityPlayer = new UnityPlayer(this);
-        //m_UnityPlayer.init(m_UnityPlayer.getSettings().getInt("gles_mode", 1), false);
-        //LayoutParams lp = new LayoutParams (LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-        frame.addView(m_UnityPlayer.getView(), 0);
-        //m_UnityPlayer.requestFocus();
-
-        b.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                db = m_helper.getWritableDatabase();
-                db.execSQL("CREATE TABLE IF NOT EXISTS training (_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, done INTEGER);");
-                Toast.makeText(MainActivity.this, "Add Table", Toast.LENGTH_LONG).show();
-                db.close();
-            }
-        });
-
-        b1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                db = m_helper.getWritableDatabase();
-                db.execSQL("INSERT INTO training VALUES (NULL, 'hello', 0);");
-                Toast.makeText(MainActivity.this, "Add Record", Toast.LENGTH_LONG).show();
-                db.close();
-            }
-        });
-
-        b2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                db = m_helper.getReadableDatabase();
-                c = db.rawQuery("SELECT * FROM training;", null);
-                c.moveToFirst();
-                db.close();
-                Toast.makeText(MainActivity.this, c.getString(0), Toast.LENGTH_LONG).show();
-            }
-        });
-
-        b3.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                db = m_helper.getReadableDatabase();
-                db.execSQL("DROP TABLE IF EXISTS training;");
-                db.close();
-            }
-        });
+        m_UnityPlayer.init(m_UnityPlayer.getSettings().getInt("gles_mode", 1), false);
+        LayoutParams lp = new LayoutParams (LayoutParams.MATCH_PARENT, dm.heightPixels * 2 / 5);
+        frame.addView(m_UnityPlayer.getView(), 0, lp);
+        m_UnityPlayer.requestFocus();
     }
 
     @Override protected void onNewIntent(Intent intent)
