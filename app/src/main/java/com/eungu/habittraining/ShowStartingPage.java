@@ -2,6 +2,8 @@ package com.eungu.habittraining;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -12,12 +14,27 @@ import android.widget.Toast;
 
 public class ShowStartingPage extends Activity {
     private Animation fadein, fadeout, startPhase;
+    private DBHelper m_helper;
+    private SQLiteDatabase db;
+    private Cursor c;
     private int phase;
-    private final int DELAYTIME = 1500;
+    private final int DELAYTIME = 50;
     private boolean canPress;
     @Override
     protected void onCreate( Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
+        db = m_helper.getReadableDatabase();
+        c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='grown';", null);
+        if(c.getCount() > 0){
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(intent);
+            overridePendingTransition(R.anim.fadein, R.anim.fadeout);
+            db.close();
+            finish();
+            return;
+        }
+        db.close();
         setContentView(R.layout.starting_page);
         final TextView textView = (TextView)findViewById(R.id.newtext);
 

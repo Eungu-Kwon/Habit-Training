@@ -18,6 +18,7 @@
             android:ems="10"
             android:inputType="textPersonName"
             android:layout_marginStart="30dp"
+            android:textColor="@color/colorTXT1"
             android:hint="목표를 입력하세요" />
 
         <Button
@@ -41,7 +42,7 @@
         android:id="@+id/start_button"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginBottom="30dp"
         android:layout_marginHorizontal="100dp"
-        android:text="시작" />
+        android:layout_marginBottom="30dp"
+        android:text="다음" />
 </LinearLayout>

@@ -17,7 +17,6 @@ import java.util.ArrayList;
 public class SettingNewGoal extends Activity {
     private DBHelper m_helper;
     private SQLiteDatabase db;
-    private Cursor c;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +24,6 @@ public class SettingNewGoal extends Activity {
         setContentView(R.layout.setting_goal);
 
         m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
-        db = m_helper.getWritableDatabase();
 
         Button addButton = (Button)findViewById(R.id.add_goal_button);
         Button startButton = (Button)findViewById(R.id.start_button);
@@ -51,13 +49,16 @@ public class SettingNewGoal extends Activity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for(ListViewItemInSetting item : list){
-                    
+                db = m_helper.getWritableDatabase();
+                db.execSQL("DROP TABLE IF EXISTS training;");
+                db.execSQL("CREATE TABLE training (_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, done INTEGER);");
+                for(int i = 0; i < list.size(); i++){
+                    String sql = String.format("INSERT INTO training VALUES (NULL, '%s', -1);", list.get(i).getName());
+                    db.execSQL(sql);
                 }
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                db.close();
+                Intent intent = new Intent(getApplicationContext(), SettingLevel.class);
                 startActivity(intent);
-                overridePendingTransition(R.anim.fadein, R.anim.fadeout);
-                finish();
             }
         });
     }

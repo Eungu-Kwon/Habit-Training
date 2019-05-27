@@ -14,8 +14,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE training (_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, done INTEGER);");
-        //Toast.makeText(c.getApplicationContext(), "Make Table", Toast.LENGTH_LONG).show();
+
     }
 
     @Override

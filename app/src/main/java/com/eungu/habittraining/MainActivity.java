@@ -37,30 +37,59 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        /*
-        db.execSQL("CREATE TABLE IF NOT EXISTS training (_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, done INTEGER);");
-        db.execSQL("INSERT INTO training VALUES (NULL, 'hello', 0);");
-        c = db.rawQuery("SELECT * FROM training;", null);
-        c.moveToFirst();
-        db.execSQL("DROP TABLE IF EXISTS training;");
-         */
+
+        findViewById(R.id.reset).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
+                db = m_helper.getWritableDatabase();
+                db.execSQL("DROP TABLE IF EXISTS training;");
+                db.execSQL("DROP TABLE IF EXISTS grown;");
+            }
+        });
 
         loadUnityView();
+        MakeGoalList();
+    }
 
-        ListView listview = (ListView)findViewById(R.id.list);
+    private void MakeGoalList(){
+        m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
+        db = m_helper.getReadableDatabase();
+        c = db.rawQuery("SELECT * FROM training;", null);
+        c.moveToFirst();
+        final ListView listview = (ListView)findViewById(R.id.list);
         final ArrayList<ListViewItem> items = new ArrayList<>();
-        for(int i = 0; i < 15; i++){
-            items.add(new ListViewItem(R.drawable.checkbox_blank, i + "번"));
-        }
+        do{
+            ListViewItem i = new ListViewItem(R.drawable.checkbox_blank, c.getString(1));
+            i.setDone(c.getInt(2));
+            LoadIcon(i);
+            items.add(i);
+        }while (c.moveToNext());
+        db.close();
         final ListViewAdapter adapter = new ListViewAdapter(this, R.layout.cell_title_linear, items);
         listview.setAdapter(adapter);
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                items.get(position).setIcon(R.drawable.checkbox_checked);
+                items.get(position).reverseDone();
+                db = m_helper.getWritableDatabase();
+                db.execSQL(String.format("UPDATE training SET done = %d WHERE title = '%s'", items.get(position).isDone(), items.get(position).getName()));
+                db.close();
+                LoadIcon(items.get(position));
                 adapter.notifyDataSetChanged();
             }
         });
+    }
+
+    public void LoadIcon(ListViewItem i){
+        if(i != null){
+            if(i.isDone() == 1){
+                i.setIcon(R.drawable.checkbox_checked);
+            }
+            else {
+                i.setIcon(R.drawable.checkbox_blank);
+            }
+        }
     }
 
     private void loadUnityView(){

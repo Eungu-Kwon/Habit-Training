@@ -11,6 +11,7 @@
         android:layout_marginVertical="10dp"
         android:layout_marginEnd="20dp"
         android:layout_height="wrap_content"
+        android:textColor="@color/colorTXT1"
         android:textSize="23dp"
         android:layout_gravity="center"
         android:text="TextView" />
