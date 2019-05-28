@@ -18,7 +18,7 @@ public class ShowStartingPage extends Activity {
     private SQLiteDatabase db;
     private Cursor c;
     private int phase;
-    private final int DELAYTIME = 50;
+    private final int DELAYTIME = 100;
     private boolean canPress;
     @Override
     protected void onCreate( Bundle savedInstanceState) {

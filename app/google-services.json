@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "654547799081",
+    "firebase_url": "https://habittraining-be59d.firebaseio.com",
+    "project_id": "habittraining-be59d",
+    "storage_bucket": "habittraining-be59d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:654547799081:android:03700f38f02cc143",
+        "android_client_info": {
+          "package_name": "com.eungu.habittraining"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "654547799081-g1ca0ho3h5amjmvif0h200jpnk7ib0ia.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHoAvup8zKI8_XW4y4ENJSifnKkvDQR18"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "654547799081-g1ca0ho3h5amjmvif0h200jpnk7ib0ia.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,7 +1,9 @@
 package com.eungu.habittraining;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -20,6 +22,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TabHost;
 import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
 import com.unity3d.player.*;
@@ -31,25 +34,106 @@ public class MainActivity extends Activity {
     private DBHelper m_helper;
     private SQLiteDatabase db;
     private Cursor c;
+    private int doneThis = 0;
     private UnityPlayer m_UnityPlayer;
+
+    AlertDialog.Builder alertDialogBuilder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        loadUnityView();
+        MakeTabs();
+        MakeGoalList();
+    }
+
+    public void MakeAlert(int menu, final ListViewItem item, final ListViewAdapter adapter){
+        setDoneThis(0);
+        alertDialogBuilder = new AlertDialog.Builder(this);
+        String title = null, message = null, pb = null, nb = null;
+        DialogInterface.OnClickListener listenerPositive = null, listenerNegative = null;
+        switch (menu){
+            case 1:
+                title = "확인";
+                message = "데이터를 삭제하시겠습니까?\n어플이 자동으로 종료됩니다.";
+                pb = "삭제";
+                nb = "취소";
+                listenerPositive = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
+                        db = m_helper.getWritableDatabase();
+                        db.execSQL("DROP TABLE IF EXISTS training;");
+                        db.execSQL("DROP TABLE IF EXISTS grown;");
+                        MainActivity.this.finish();
+                    }
+                };
+                listenerNegative = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                };
+                break;
+            case 2:
+                title = "확인";
+                message = "이 목표를 달성했나요?\n양심에 따라 정직하게 확인해주세요!\n한번 확인하면 취소할 수 없습니다.";
+                pb = "확인";
+                nb = "취소";
+                listenerPositive = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        setDoneThis(1);
+                        item.reverseDone();
+                        db = m_helper.getWritableDatabase();
+                        db.execSQL(String.format("UPDATE training SET done = %d WHERE title = '%s'", item.isDone(), item.getName()));
+                        db.close();
+                        LoadIcon(item);
+                        adapter.notifyDataSetChanged();
+                    }
+                };
+                listenerNegative = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                };
+                break;
+        }
+        alertDialogBuilder.setTitle(title);
+        alertDialogBuilder.setMessage(message);
+        alertDialogBuilder.setCancelable(false);
+        alertDialogBuilder.setPositiveButton(pb, listenerPositive);
+        alertDialogBuilder.setNegativeButton(nb, listenerNegative);
+    }
+
+    private void setDoneThis(int i) {this.doneThis = i;}
+    private int getDoneThis() {return this.doneThis;}
+
+    private void MakeTabs(){
+        TabHost tabhost = (TabHost)findViewById(R.id.tabhost);
+        tabhost.setup();
+
+        TabHost.TabSpec tab1 = tabhost.newTabSpec("Tab Spac 1");
+        tab1.setContent(R.id.tab1);
+        tab1.setIndicator("일반");
+        tabhost.addTab(tab1);
+
+        TabHost.TabSpec tab2 = tabhost.newTabSpec("Tab Spac 2");
+        tab2.setContent(R.id.tab2);
+        tab2.setIndicator("설정");
+        tabhost.addTab(tab2);
+
         findViewById(R.id.reset).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
-                db = m_helper.getWritableDatabase();
-                db.execSQL("DROP TABLE IF EXISTS training;");
-                db.execSQL("DROP TABLE IF EXISTS grown;");
+                MakeAlert(1, null, null);
+                AlertDialog ad = alertDialogBuilder.create();
+                ad.show();
             }
         });
-
-        loadUnityView();
-        MakeGoalList();
     }
 
     private void MakeGoalList(){
@@ -71,12 +155,10 @@ public class MainActivity extends Activity {
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                items.get(position).reverseDone();
-                db = m_helper.getWritableDatabase();
-                db.execSQL(String.format("UPDATE training SET done = %d WHERE title = '%s'", items.get(position).isDone(), items.get(position).getName()));
-                db.close();
-                LoadIcon(items.get(position));
-                adapter.notifyDataSetChanged();
+                if(items.get(position).isDone() == 1) return;
+                MakeAlert(2, items.get(position), adapter);
+                AlertDialog ad = alertDialogBuilder.create();
+                ad.show();
             }
         });
     }

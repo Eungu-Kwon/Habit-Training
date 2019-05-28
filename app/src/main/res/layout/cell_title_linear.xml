@@ -22,7 +22,6 @@
         android:text="텍스트 뷰"
         android:singleLine="true"
         android:textAllCaps="false"
-        android:textSize="32sp"
-        android:textStyle="bold" />
+        android:textSize="26sp" />
 
 </LinearLayout>

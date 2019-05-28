@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -18,6 +19,9 @@ public class SettingNewGoal extends Activity {
     private DBHelper m_helper;
     private SQLiteDatabase db;
 
+    View.OnClickListener listener;
+    Button addButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,7 +29,7 @@ public class SettingNewGoal extends Activity {
 
         m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
 
-        Button addButton = (Button)findViewById(R.id.add_goal_button);
+        addButton = (Button)findViewById(R.id.add_goal_button);
         Button startButton = (Button)findViewById(R.id.start_button);
         final EditText inputField = (EditText)findViewById(R.id.text_input);
 
@@ -36,15 +40,23 @@ public class SettingNewGoal extends Activity {
         final ListViewInSettingAdapter adapter = new ListViewInSettingAdapter(getApplicationContext(), R.layout.cell_setting_goal, list);
         listView.setAdapter(adapter);
 
-        addButton.setOnClickListener(new View.OnClickListener() {
+        listener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                imm.hideSoftInputFromWindow(inputField.getWindowToken(), 0);
+                if(inputField.getText().toString().equals("")) {
+                    Toast.makeText(getApplicationContext(), "목표를 입력해주세요!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if(v.getId() == R.id.add_goal_button){
+                    imm.hideSoftInputFromWindow(inputField.getWindowToken(), 0);
+                }
                 list.add(new ListViewItemInSetting(inputField.getText().toString()));
                 inputField.setText("");
                 adapter.notifyDataSetChanged();
             }
-        });
+        };
+
+        addButton.setOnClickListener(listener);
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,5 +73,13 @@ public class SettingNewGoal extends Activity {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_ENTER){
+            addButton.performClick();
+        }
+        return super.onKeyUp(keyCode, event);
     }
 }

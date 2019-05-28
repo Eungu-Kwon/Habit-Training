@@ -71,7 +71,6 @@ public class SettingLevel extends Activity {
                 MakeAlert();
                 AlertDialog ad = alertDialogBuilder.create();
                 ad.show();
-                //StartProgram();
             }
         });
     }
