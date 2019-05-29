@@ -65,9 +65,9 @@ public class MainActivity extends Activity {
         if(c.getCount() == 0){
             sql = String.format("SELECT * FROM todolist");
             Cursor listC = db.rawQuery(sql, null);
-            c.moveToFirst();
+            //c.moveToFirst();
             listC.moveToFirst();
-            for(int i = 0; i < c.getCount(); i++){
+            for(int i = 0; i < listC.getCount(); i++){
                 String itemName = listC.getString(1);
                 sql = String.format("INSERT INTO training VALUES ('%s', '%s', -1);", now, itemName);
                 db.execSQL(sql);
