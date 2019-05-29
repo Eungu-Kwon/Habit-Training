@@ -2,32 +2,35 @@ package com.eungu.habittraining;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.util.DisplayMetrics;
-import android.view.Display;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.Toast;
-import android.widget.LinearLayout.LayoutParams;
-import com.unity3d.player.*;
 
+import com.unity3d.player.UnityPlayer;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
+
+import nl.dionsegijn.konfetti.KonfettiView;
+import nl.dionsegijn.konfetti.models.Shape;
+import nl.dionsegijn.konfetti.models.Size;
 
 public class MainActivity extends Activity {
 
@@ -44,13 +47,38 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        InitializeToday();
         loadUnityView();
         MakeTabs();
         MakeGoalList();
     }
 
-    public void MakeAlert(int menu, final ListViewItem item, final ListViewAdapter adapter){
-        setDoneThis(0);
+    private void InitializeToday(){
+        SimpleDateFormat mDate = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
+        Date today = new Date();
+        String now = mDate.format(today);
+        m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
+        db = m_helper.getReadableDatabase();
+        String sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", now);
+        c = db.rawQuery(sql, null);
+
+        if(c.getCount() == 0){
+            sql = String.format("SELECT * FROM todolist");
+            Cursor listC = db.rawQuery(sql, null);
+            c.moveToFirst();
+            listC.moveToFirst();
+            for(int i = 0; i < c.getCount(); i++){
+                String itemName = listC.getString(1);
+                sql = String.format("INSERT INTO training VALUES ('%s', '%s', -1);", now, itemName);
+                db.execSQL(sql);
+                listC.moveToNext();
+            }
+
+            Toast.makeText(getApplicationContext(), "초기화는 하루에 한번!", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void MakeAlert(int menu, final ArrayList<ListViewItem> items, final int idx, final ListViewAdapter adapter){
         alertDialogBuilder = new AlertDialog.Builder(this);
         String title = null, message = null, pb = null, nb = null;
         DialogInterface.OnClickListener listenerPositive = null, listenerNegative = null;
@@ -85,13 +113,16 @@ public class MainActivity extends Activity {
                 listenerPositive = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        setDoneThis(1);
-                        item.reverseDone();
+                        items.get(idx).reverseDone();
                         db = m_helper.getWritableDatabase();
-                        db.execSQL(String.format("UPDATE training SET done = %d WHERE title = '%s'", item.isDone(), item.getName()));
+                        db.execSQL(String.format("UPDATE training SET done = %d WHERE title = '%s'", items.get(idx).isDone(), items.get(idx).getName()));
                         db.close();
-                        LoadIcon(item);
+                        LoadIcon(items.get(idx));
                         adapter.notifyDataSetChanged();
+
+                        for(ListViewItem item : items){if(item.isDone() == -1) return; }
+
+                        IWAE();
                     }
                 };
                 listenerNegative = new DialogInterface.OnClickListener() {
@@ -109,8 +140,21 @@ public class MainActivity extends Activity {
         alertDialogBuilder.setNegativeButton(nb, listenerNegative);
     }
 
-    private void setDoneThis(int i) {this.doneThis = i;}
-    private int getDoneThis() {return this.doneThis;}
+    public void IWAE(){
+        KonfettiView konfettiView = findViewById(R.id.viewKonfetti);
+        konfettiView.build()
+                .addColors(Color.YELLOW, Color.GREEN, Color.MAGENTA)
+                .setDirection(0.0, 359.0)
+                .setSpeed(10f, 15f)
+                .setFadeOutEnabled(true)
+                .setTimeToLive(2000L)
+                .addShapes(Shape.RECT, Shape.CIRCLE)
+                .addSizes(new Size(12, 5f))
+                .setPosition(-50f, konfettiView.getWidth() + 50f, -50f, -50f)
+                .streamFor(300, 2000L);
+        Toast.makeText(getApplicationContext(), "목표를 달성하였습니다.\n수고하셨습니다!", Toast.LENGTH_LONG).show();
+        return;
+    }
 
     private void MakeTabs(){
         TabHost tabhost = (TabHost)findViewById(R.id.tabhost);
@@ -129,7 +173,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.reset).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MakeAlert(1, null, null);
+                MakeAlert(1, null, 0, null);
                 AlertDialog ad = alertDialogBuilder.create();
                 ad.show();
             }
@@ -137,9 +181,13 @@ public class MainActivity extends Activity {
     }
 
     private void MakeGoalList(){
+        SimpleDateFormat mDate = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
+        Date today = new Date();
+        String now = mDate.format(today);
         m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
         db = m_helper.getReadableDatabase();
-        c = db.rawQuery("SELECT * FROM training;", null);
+        String sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", now);
+        c = db.rawQuery(sql, null);
         c.moveToFirst();
         final ListView listview = (ListView)findViewById(R.id.list);
         final ArrayList<ListViewItem> items = new ArrayList<>();
@@ -156,7 +204,7 @@ public class MainActivity extends Activity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if(items.get(position).isDone() == 1) return;
-                MakeAlert(2, items.get(position), adapter);
+                MakeAlert(2, items, position, adapter);
                 AlertDialog ad = alertDialogBuilder.create();
                 ad.show();
             }

@@ -25,8 +25,6 @@ public class SettingLevel extends Activity {
         setContentView(R.layout.setting_plants);
         level = -1;
 
-
-
         Button startButton = (Button)findViewById(R.id.start_button_in_level);
         final TextView textView = (TextView)findViewById(R.id.info_text);
 

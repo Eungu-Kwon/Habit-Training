@@ -2,7 +2,6 @@ package com.eungu.habittraining;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -13,7 +12,10 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 public class SettingNewGoal extends Activity {
     private DBHelper m_helper;
@@ -61,11 +63,22 @@ public class SettingNewGoal extends Activity {
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(list.size() == 0) {
+                    Toast.makeText(getApplicationContext(), "목표를 설정해주세요!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                SimpleDateFormat mDate = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
+                Date today = new Date();
+                String now = mDate.format(today);
                 db = m_helper.getWritableDatabase();
                 db.execSQL("DROP TABLE IF EXISTS training;");
-                db.execSQL("CREATE TABLE training (_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, done INTEGER);");
+                db.execSQL("DROP TABLE IF EXISTS todolist;");
+                db.execSQL("CREATE TABLE training (today TEXT, title TEXT, done INTEGER);");
+                db.execSQL("CREATE TABLE todolist (_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT);");
                 for(int i = 0; i < list.size(); i++){
-                    String sql = String.format("INSERT INTO training VALUES (NULL, '%s', -1);", list.get(i).getName());
+                    String sql = String.format("INSERT INTO training VALUES ('%s', '%s', -1);", now, list.get(i).getName());
+                    db.execSQL(sql);
+                    sql = String.format("INSERT INTO todolist VALUES (NULL, '%s');", list.get(i).getName());
                     db.execSQL(sql);
                 }
                 db.close();
