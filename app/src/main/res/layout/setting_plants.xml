@@ -6,6 +6,17 @@
     android:layout_height="match_parent"
     android:background="@color/colorBG">
 
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textSize="40dp"
+        android:layout_marginLeft="20dp"
+        android:textColor="@color/colorTXT1"
+        android:gravity="center"
+        android:text="난이도 선택" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">습관 훈련</string>
+    <string name="set_goal"><u>목표설정</u></string>
 </resources>
