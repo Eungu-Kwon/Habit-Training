@@ -43,10 +43,14 @@ public class MainActivity extends Activity {
 
     AlertDialog.Builder alertDialogBuilder;
 
+    private BackPressCloseHandler backPressCloseHandler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        backPressCloseHandler = new BackPressCloseHandler(this);
 
         InitializeToday();
         loadUnityView();
@@ -55,26 +59,33 @@ public class MainActivity extends Activity {
     }
 
     private void InitializeToday(){
-        SimpleDateFormat mDate = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
-        Date today = new Date();
-        String now = mDate.format(today);
         String sql;
         m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
         SQLiteDatabase _db = m_helper.getReadableDatabase();
 
+        SimpleDateFormat mDate = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
+        Calendar calendar = Calendar.getInstance();
+
+        sql = String.format("SELECT * FROM debug;");
+        c = _db.rawQuery(sql, null);
+        c.moveToFirst();
+        calendar.add(Calendar.DAY_OF_YEAR, c.getInt(0));
+        Date today = calendar.getTime();
+        String now = mDate.format(today);
+
         sql = String.format("SELECT * FROM grown");
         c = _db.rawQuery(sql, null);
         c.moveToFirst();
-        level = Integer.parseInt(c.getString(1));
-        days = Integer.parseInt(c.getString(2));
-        rested = Integer.parseInt(c.getString(3));
-        phase = Integer.parseInt(c.getString(4));
+        level = c.getInt(1);
+        days = c.getInt(2);
+        rested = c.getInt(3);
+        phase = c.getInt(4);
 
         sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", now);
         c = _db.rawQuery(sql, null);
 
         if(c.getCount() == 0){
-            if(DidCompleteYesterday(today) == false){
+            if(DidCompleteYesterday() == false){
                 rested += 1;
                 db.execSQL("DROP TABLE IF EXISTS grown;");
                 db.execSQL("CREATE TABLE grown (_id INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, days INTEGER, rested INTEGER, phase INTEGER);");
@@ -89,21 +100,28 @@ public class MainActivity extends Activity {
                 _db.execSQL(sql);
                 listC.moveToNext();
             }
-            Toast.makeText(getApplicationContext(), "초기화는 하루에 한번!", Toast.LENGTH_LONG).show();
         }
 
         _db.close();
     }
 
-    public boolean DidCompleteYesterday(Date today){
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DAY_OF_YEAR, -1);
-        Date yesterday = calendar.getTime();
+    public boolean DidCompleteYesterday(){
         m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
         SQLiteDatabase _db = m_helper.getReadableDatabase();
 
-        String sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", yesterday);
+        String sql = String.format("SELECT * FROM debug;");
         c = _db.rawQuery(sql, null);
+        c.moveToFirst();
+
+        Calendar calendar = Calendar.getInstance();
+        int temp = c.getInt(0);
+        calendar.add(Calendar.DAY_OF_YEAR, temp - 1);
+        Date yesterday = calendar.getTime();
+
+        sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", yesterday);
+        c = _db.rawQuery(sql, null);
+        if(c.getCount() == 0) return true;
+
         c.moveToFirst();
 
         for(int i = 0; i < c.getCount(); i++){
@@ -159,6 +177,34 @@ public class MainActivity extends Activity {
                         for(ListViewItem item : items){if(item.isDone() == -1) return; }
 
                         IWAE();
+                    }
+                };
+                listenerNegative = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                };
+                break;
+            case 3:
+                title = "디버그";
+                message = "다음날로 이동하시겠습니까?\n이 버튼은 디버그 및 과제평과를 위해 만들었습니다.\n\'이동\'버튼을 누르면 어플이 종료됩니다. 다시 시작해주세요.";
+                pb = "이동";
+                nb = "취소";
+                listenerPositive = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
+                        db = m_helper.getWritableDatabase();
+
+                        c = db.rawQuery(String.format("SELECT * FROM debug;"), null);
+                        c.moveToFirst();
+                        int temp = c.getInt(0);
+                        db.execSQL("DROP TABLE IF EXISTS debug;");
+                        db.execSQL("CREATE TABLE debug (day INTEGER);");
+                        String sql = String.format("INSERT INTO debug VALUES (%d);", temp + 1);
+                        db.execSQL(sql);
+                        MainActivity.this.finish();
                     }
                 };
                 listenerNegative = new DialogInterface.OnClickListener() {
@@ -226,15 +272,31 @@ public class MainActivity extends Activity {
                 ad.show();
             }
         });
+        findViewById(R.id.nextday).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MakeAlert(3, null, 0, null);
+                AlertDialog ad = alertDialogBuilder.create();
+                ad.show();
+            }
+        });
     }
 
     private void MakeGoalList(){
-        SimpleDateFormat mDate = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
-        Date today = new Date();
-        String now = mDate.format(today);
         m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
         db = m_helper.getReadableDatabase();
-        String sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", now);
+
+        SimpleDateFormat mDate = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
+        Calendar calendar = Calendar.getInstance();
+
+        String sql = String.format("SELECT * FROM debug;");
+        c = db.rawQuery(sql, null);
+        c.moveToFirst();
+        calendar.add(Calendar.DAY_OF_YEAR, c.getInt(0));
+        Date today = calendar.getTime();
+        String now = mDate.format(today);
+
+        sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", now);
         c = db.rawQuery(sql, null);
         c.moveToFirst();
         final ListView listview = (ListView)findViewById(R.id.list);
@@ -268,6 +330,11 @@ public class MainActivity extends Activity {
                 i.setIcon(R.drawable.checkbox_blank);
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        backPressCloseHandler.onBackPressed();
     }
 
     private void loadUnityView(){

@@ -79,6 +79,11 @@ public class SettingLevel extends Activity {
         db.execSQL("DROP TABLE IF EXISTS grown;");
         db.execSQL("CREATE TABLE grown (_id INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, days INTEGER, rested INTEGER, phase INTEGER);");
         db.execSQL(String.format("INSERT INTO grown VALUES (NULL, %d, 0, 0, %d);", level, 1));
+
+        db.execSQL("DROP TABLE IF EXISTS debug;");
+        db.execSQL("CREATE TABLE debug (day INTEGER);");
+        db.execSQL("INSERT INTO debug VALUES (0);");
+
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
