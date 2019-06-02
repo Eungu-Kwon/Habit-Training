@@ -148,6 +148,8 @@ public class MainActivity extends Activity {
                         db = m_helper.getWritableDatabase();
                         db.execSQL("DROP TABLE IF EXISTS training;");
                         db.execSQL("DROP TABLE IF EXISTS grown;");
+                        db.execSQL("DROP TABLE IF EXISTS todolist;");
+                        db.execSQL("DROP TABLE IF EXISTS debug;");
                         MainActivity.this.finish();
                     }
                 };
@@ -436,8 +438,8 @@ public class MainActivity extends Activity {
     }
 
     // Pass any events not handled by (unfocused) views straight to UnityPlayer
-    @Override public boolean onKeyUp(int keyCode, KeyEvent event)     { return m_UnityPlayer.injectEvent(event); }
-    @Override public boolean onKeyDown(int keyCode, KeyEvent event)   { return m_UnityPlayer.injectEvent(event); }
+    //@Override public boolean onKeyUp(int keyCode, KeyEvent event)     { return m_UnityPlayer.injectEvent(event); }
+    //@Override public boolean onKeyDown(int keyCode, KeyEvent event)   { return m_UnityPlayer.injectEvent(event); }
     @Override public boolean onTouchEvent(MotionEvent event)          { return m_UnityPlayer.injectEvent(event); }
     /*API12*/ public boolean onGenericMotionEvent(MotionEvent event)  { return m_UnityPlayer.injectEvent(event); }
 }

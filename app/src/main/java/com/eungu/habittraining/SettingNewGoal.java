@@ -74,11 +74,11 @@ public class SettingNewGoal extends Activity {
                 db.execSQL("DROP TABLE IF EXISTS training;");
                 db.execSQL("DROP TABLE IF EXISTS todolist;");
                 db.execSQL("CREATE TABLE training (today TEXT, title TEXT, done INTEGER);");
-                db.execSQL("CREATE TABLE todolist (_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT);");
+                db.execSQL("CREATE TABLE todolist (_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, startdate TEXT);");
                 for(int i = 0; i < list.size(); i++){
                     String sql = String.format("INSERT INTO training VALUES ('%s', '%s', -1);", now, list.get(i).getName());
                     db.execSQL(sql);
-                    sql = String.format("INSERT INTO todolist VALUES (NULL, '%s');", list.get(i).getName());
+                    sql = String.format("INSERT INTO todolist VALUES (NULL, '%s', '%s');", list.get(i).getName(), now);
                     db.execSQL(sql);
                 }
                 db.close();
