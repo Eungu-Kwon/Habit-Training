@@ -25,6 +25,7 @@ import com.unity3d.player.UnityPlayer;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -37,7 +38,7 @@ public class MainActivity extends Activity {
     private DBHelper m_helper;
     private SQLiteDatabase db;
     private Cursor c;
-    private int doneThis = 0;
+    private int level = -1, phase = -1, days = -1, rested = -1;
     private UnityPlayer m_UnityPlayer;
 
     AlertDialog.Builder alertDialogBuilder;
@@ -57,25 +58,59 @@ public class MainActivity extends Activity {
         SimpleDateFormat mDate = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
         Date today = new Date();
         String now = mDate.format(today);
+        String sql;
         m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
-        db = m_helper.getReadableDatabase();
-        String sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", now);
-        c = db.rawQuery(sql, null);
+        SQLiteDatabase _db = m_helper.getReadableDatabase();
+
+        sql = String.format("SELECT * FROM grown");
+        c = _db.rawQuery(sql, null);
+        c.moveToFirst();
+        level = Integer.parseInt(c.getString(1));
+        days = Integer.parseInt(c.getString(2));
+        rested = Integer.parseInt(c.getString(3));
+        phase = Integer.parseInt(c.getString(4));
+
+        sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", now);
+        c = _db.rawQuery(sql, null);
 
         if(c.getCount() == 0){
+            if(DidCompleteYesterday(today) == false){
+                rested += 1;
+                db.execSQL("DROP TABLE IF EXISTS grown;");
+                db.execSQL("CREATE TABLE grown (_id INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, days INTEGER, rested INTEGER, phase INTEGER);");
+                db.execSQL(String.format("INSERT INTO grown VALUES (NULL, %d, %d, %d, %d);", level, days, rested, phase));
+            }
             sql = String.format("SELECT * FROM todolist");
-            Cursor listC = db.rawQuery(sql, null);
-            //c.moveToFirst();
+            Cursor listC = _db.rawQuery(sql, null);
             listC.moveToFirst();
             for(int i = 0; i < listC.getCount(); i++){
                 String itemName = listC.getString(1);
                 sql = String.format("INSERT INTO training VALUES ('%s', '%s', -1);", now, itemName);
-                db.execSQL(sql);
+                _db.execSQL(sql);
                 listC.moveToNext();
             }
-
             Toast.makeText(getApplicationContext(), "초기화는 하루에 한번!", Toast.LENGTH_LONG).show();
         }
+
+        _db.close();
+    }
+
+    public boolean DidCompleteYesterday(Date today){
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DAY_OF_YEAR, -1);
+        Date yesterday = calendar.getTime();
+        m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
+        SQLiteDatabase _db = m_helper.getReadableDatabase();
+
+        String sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", yesterday);
+        c = _db.rawQuery(sql, null);
+        c.moveToFirst();
+
+        for(int i = 0; i < c.getCount(); i++){
+            if(c.getInt(2) == -1) return false;
+            c.moveToNext();
+        }
+        return true;
     }
 
     public void MakeAlert(int menu, final ArrayList<ListViewItem> items, final int idx, final ListViewAdapter adapter){
@@ -101,6 +136,7 @@ public class MainActivity extends Activity {
                 listenerNegative = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        m_UnityPlayer.UnitySendMessage("listener", "GrowUp", phase + "");
                         dialog.cancel();
                     }
                 };
@@ -141,6 +177,18 @@ public class MainActivity extends Activity {
     }
 
     public void IWAE(){
+        db = m_helper.getWritableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS grown;");
+        db.execSQL("CREATE TABLE grown (_id INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, days INTEGER, rested INTEGER, phase INTEGER);");
+        switch (level){
+            case 1:
+                if(days == 0) phase += 1;
+                else if(days == 3) phase += 1;
+                else if(days == 6) phase += 1;
+                break;
+        }
+        m_UnityPlayer.UnitySendMessage("listener", "GrowUp", phase + "");
+        db.execSQL(String.format("INSERT INTO grown VALUES (NULL, %d, %d, %d, %d);", level, days + 1, rested, phase));
         KonfettiView konfettiView = findViewById(R.id.viewKonfetti);
         konfettiView.build()
                 .addColors(Color.YELLOW, Color.GREEN, Color.MAGENTA)
@@ -270,6 +318,8 @@ public class MainActivity extends Activity {
     {
         super.onStart();
         m_UnityPlayer.start();
+        int temp = (level * 10) + phase;
+        m_UnityPlayer.UnitySendMessage("listener", "PlantInit", temp + "");
     }
 
     @Override protected void onStop()

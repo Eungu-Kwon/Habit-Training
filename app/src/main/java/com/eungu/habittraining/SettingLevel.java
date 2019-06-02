@@ -37,15 +37,15 @@ public class SettingLevel extends Activity {
             public void onClick(View v) {
                 switch (v.getId()){
                     case R.id.level_0:
-                        level = 0;
+                        level = 1;
                         textView.setText("일주일 동안 목표를 실천합니다.\n(7일)");
                         break;
                     case R.id.level_1:
-                        level = 1;
+                        level = 2;
                         textView.setText("이주일 동안 목표를 실천합니다.\n(14일)");
                         break;
                     case R.id.level_5:
-                        level = 5;
+                        level = 3;
                         textView.setText("한달간 목표를 실천합니다.\n(30일)");
                         break;
                 }
@@ -77,8 +77,8 @@ public class SettingLevel extends Activity {
         m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
         db = m_helper.getWritableDatabase();
         db.execSQL("DROP TABLE IF EXISTS grown;");
-        db.execSQL("CREATE TABLE grown (_id INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, days INTEGER, rested INTEGER);");
-        db.execSQL(String.format("INSERT INTO grown VALUES (NULL, %d, 0, 0);", level));
+        db.execSQL("CREATE TABLE grown (_id INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, days INTEGER, rested INTEGER, phase INTEGER);");
+        db.execSQL(String.format("INSERT INTO grown VALUES (NULL, %d, 0, 0, %d);", level, 1));
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);

@@ -5,11 +5,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.widget.Toast;
 
+//todolist (_id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT)
+//training (today TEXT, title TEXT, done INTEGER) done 1, not done -1
+//grown (_id INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, days INTEGER, rested INTEGER) , phase INTEGER
 public class DBHelper extends SQLiteOpenHelper {
-    Context c;
     public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
-        //c = context;
     }
 
     @Override
