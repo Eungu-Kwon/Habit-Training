@@ -29,3 +29,39 @@ class ListViewItemInSetting {
         this.name=name;
     }
 }
+
+class FoldingCellItem {
+    private String date;
+    private String listName;
+    private boolean done;
+
+    public FoldingCellItem(String date, String listName, boolean done) {
+        this.date = date;
+        this.listName = listName;
+        this.done = done;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getListName() {
+        return listName;
+    }
+
+    public void setListName(String listName) {
+        this.listName = listName;
+    }
+
+    public boolean isDone() {
+        return done;
+    }
+
+    public void setDone(boolean done) {
+        this.done = done;
+    }
+}

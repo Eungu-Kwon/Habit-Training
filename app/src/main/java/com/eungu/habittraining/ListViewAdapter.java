@@ -4,15 +4,18 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import com.ramotion.foldingcell.FoldingCell;
 
-import static android.content.Context.INPUT_METHOD_SERVICE;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public class ListViewAdapter extends BaseAdapter {
     private LayoutInflater inflater;
@@ -112,3 +115,97 @@ class ListViewInSettingAdapter extends BaseAdapter {
     }
 }
 
+class FoldingCellListAdapter extends ArrayAdapter<FoldingCellItem>{
+    private HashSet<Integer> unfoldedIndexes = new HashSet<>();
+    Context context;
+    public FoldingCellListAdapter(Context context, int resource, List<FoldingCellItem> objects) {
+        super(context, resource, objects);
+        this.context = context;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        FoldingCellItem item = getItem(position);
+
+        FoldingCell cell = (FoldingCell) convertView;
+        ViewHolder viewHolder;
+
+        if(cell == null){
+            viewHolder = new ViewHolder();
+            LayoutInflater vi = LayoutInflater.from(getContext());
+            cell = (FoldingCell) vi.inflate(R.layout.cell, parent, false);
+            viewHolder.dateInTitle = (TextView)cell.findViewById(R.id.dateInTitle);
+            viewHolder.dateInContent = (TextView)cell.findViewById(R.id.dateContent);
+            viewHolder.contentList = (ListView)cell.findViewById(R.id.list_in_content);
+            viewHolder.doIcon = (ImageView)cell.findViewById(R.id.imageInTitle);
+            cell.setTag(viewHolder);
+        }
+        else {
+            // for existing cell set valid valid state(without animation)
+            if (unfoldedIndexes.contains(position)) {
+                cell.unfold(true);
+            } else {
+                cell.fold(true);
+            }
+            viewHolder = (ViewHolder) cell.getTag();
+        }
+
+        if (null == item)
+            return cell;
+
+        viewHolder.dateInTitle.setText(item.getDate());
+        viewHolder.dateInContent.setText(item.getDate());
+        viewHolder.doIcon.setImageResource(R.drawable.checkbox_checked);
+
+        final ArrayList<ListViewItem> items = new ArrayList<>();
+        ListViewItem item1 = new ListViewItem(R.drawable.checkbox_blank, "000");
+        item1.setIcon(R.drawable.checkbox_blank);
+        items.add(item1);
+
+        ListViewItem item2 = new ListViewItem(R.drawable.checkbox_blank, "321");
+        item2.setIcon(R.drawable.checkbox_blank);
+        items.add(item2);
+
+        ListViewItem item3 = new ListViewItem(R.drawable.checkbox_blank, "222");
+        item3.setIcon(R.drawable.checkbox_blank);
+        items.add(item3);
+        items.add(item3);
+        items.add(item3);
+        items.add(item3);
+
+        ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) viewHolder.contentList.getLayoutParams();
+        lp.height = (384 + 32) * (int)context.getResources()
+                .getDisplayMetrics()
+                .density;
+        viewHolder.contentList.setLayoutParams(lp);
+        viewHolder.contentList.requestLayout();
+
+        final ListViewAdapter adapter = new ListViewAdapter(context, R.layout.cell_title_linear, items);
+        viewHolder.contentList.setAdapter(adapter);
+
+        return cell;
+    }
+
+    // simple methods for register cell state changes
+    public void registerToggle(int position) {
+        if (unfoldedIndexes.contains(position))
+            registerFold(position);
+        else
+            registerUnfold(position);
+    }
+
+    public void registerFold(int position) {
+        unfoldedIndexes.remove(position);
+    }
+
+    public void registerUnfold(int position) {
+        unfoldedIndexes.add(position);
+    }
+
+    private static class ViewHolder{
+        TextView dateInTitle;
+        TextView dateInContent;
+        ListView contentList;
+        ImageView doIcon;
+    }
+}

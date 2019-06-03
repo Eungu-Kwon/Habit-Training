@@ -10,7 +10,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -21,8 +20,10 @@ import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.Toast;
 
+import com.ramotion.foldingcell.FoldingCell;
 import com.unity3d.player.UnityPlayer;
 
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -56,6 +57,7 @@ public class MainActivity extends Activity {
         loadUnityView();
         MakeTabs();
         MakeGoalList();
+        MakePassedDataList();
     }
 
     private void InitializeToday(){
@@ -263,8 +265,13 @@ public class MainActivity extends Activity {
 
         TabHost.TabSpec tab2 = tabhost.newTabSpec("Tab Spac 2");
         tab2.setContent(R.id.tab2);
-        tab2.setIndicator("설정");
+        tab2.setIndicator("passed");
         tabhost.addTab(tab2);
+
+        TabHost.TabSpec tab3 = tabhost.newTabSpec("Tab Spac 3");
+        tab3.setContent(R.id.tab3);
+        tab3.setIndicator("설정");
+        tabhost.addTab(tab3);
 
         findViewById(R.id.reset).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -319,6 +326,57 @@ public class MainActivity extends Activity {
                 MakeAlert(2, items, position, adapter);
                 AlertDialog ad = alertDialogBuilder.create();
                 ad.show();
+            }
+        });
+    }
+
+    private void MakePassedDataList(){
+        final ListView listview = (ListView)findViewById(R.id.passed_data);
+        final ArrayList<FoldingCellItem> items = new ArrayList<>();
+
+        m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
+        db = m_helper.getReadableDatabase();
+
+        SimpleDateFormat mDate = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
+        SimpleDateFormat showDate = new SimpleDateFormat("yyyy-MM-dd", Locale.KOREA);
+
+        String sql = String.format("SELECT * FROM todolist;");
+        c = db.rawQuery(sql, null);
+        c.moveToFirst();
+        Date firstDate = mDate.parse(c.getString(2), new ParsePosition(0));
+
+        sql = String.format("SELECT * FROM debug;");
+        c = db.rawQuery(sql, null);
+        c.moveToFirst();
+
+        Calendar calendar = Calendar.getInstance();
+        int temp = c.getInt(0);
+        calendar.add(Calendar.DAY_OF_YEAR, temp);
+
+        Date curr = calendar.getTime();
+
+        c = db.rawQuery(String.format("SELECT * FROM training WHERE today LIKE '%s';", mDate.format(curr)), null);
+        while(true){
+            if(mDate.format(firstDate).compareTo(mDate.format(curr)) == 0 || mDate.format(firstDate).compareTo(mDate.format(curr)) == 1) break;
+
+            FoldingCellItem item = new FoldingCellItem(showDate.format(curr), "name", true);
+            items.add(item);
+
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
+            firstDate = calendar.getTime();
+        }
+
+
+        final FoldingCellListAdapter adapter = new FoldingCellListAdapter(this, R.layout.cell, items);
+        listview.setAdapter(adapter);
+        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
+                Toast.makeText(getApplicationContext(), "Pressed List", Toast.LENGTH_SHORT).show();
+                // toggle clicked cell state
+                ((FoldingCell) view).toggle(true);
+                // register in adapter that state for selected cell is toggled
+                adapter.registerToggle(pos);
             }
         });
     }
