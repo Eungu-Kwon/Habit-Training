@@ -4,10 +4,9 @@
     android:id="@+id/folding_cell"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:clipChildren="false"
-    android:clipToPadding="false"
+    android:layout_marginVertical="10dp"
     folding-cell:animationDuration="1000"
-    folding-cell:additionalFlipsCount="2"
+    folding-cell:backSideColor="@color/colorBGold"
     folding-cell:cameraHeight="30">
 
     <include layout="@layout/cell_list_content"></include>

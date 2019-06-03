@@ -2,7 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBG">
+    android:background="@color/colorBG"
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
 
     <FrameLayout
@@ -14,7 +16,9 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false">
 
         <TabHost
             android:id="@+id/tabhost"
@@ -24,7 +28,9 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:clipChildren="false"
+                android:clipToPadding="false">
 
                 <TabWidget
                     android:id="@android:id/tabs"
@@ -34,7 +40,9 @@
                 <FrameLayout
                     android:id="@android:id/tabcontent"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="match_parent"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
 
                     <LinearLayout
                         android:id="@+id/tab1"
@@ -60,6 +68,7 @@
                             android:id="@+id/passed_data"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
+                            android:layout_marginHorizontal="20dp"
                             android:clipChildren="false"
                             android:clipToPadding="false"/>
                     </LinearLayout>

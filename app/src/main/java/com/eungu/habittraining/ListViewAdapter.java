@@ -136,6 +136,18 @@ class FoldingCellListAdapter extends ArrayAdapter<FoldingCellItem>{
         FoldingCell cell = (FoldingCell) convertView;
         ViewHolder viewHolder;
 
+        DBHelper m_helper = new DBHelper(context, "training.db", null, 1);;
+        SQLiteDatabase db = m_helper.getReadableDatabase();;
+        Cursor c;
+
+        SimpleDateFormat mDate = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
+        SimpleDateFormat showDate = new SimpleDateFormat("yyyy-MM-dd", Locale.KOREA);
+
+        Date now = showDate.parse(item.getDate(), new ParsePosition(0));
+        String sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", mDate.format(now));
+        c = db.rawQuery(sql, null);
+        c.moveToFirst();
+
         if(cell == null){
             viewHolder = new ViewHolder();
             LayoutInflater vi = LayoutInflater.from(getContext());
@@ -161,20 +173,15 @@ class FoldingCellListAdapter extends ArrayAdapter<FoldingCellItem>{
 
         viewHolder.dateInTitle.setText(item.getDate());
         viewHolder.dateInContent.setText(item.getDate());
-        viewHolder.doIcon.setImageResource(R.drawable.checkbox_checked);
+        boolean checkDone = true;
+        do{
+            if(c.getInt(2) == -1) checkDone = false;
+        }while(c.moveToNext());
+        if(checkDone) viewHolder.doIcon.setImageResource(R.drawable.checkbox_checked);
+        else viewHolder.doIcon.setImageResource(R.drawable.checkbox_blank);
 
         final ArrayList<ListViewItem> items = new ArrayList<>();
 
-        DBHelper m_helper = new DBHelper(context, "training.db", null, 1);;
-        SQLiteDatabase db = m_helper.getReadableDatabase();;
-        Cursor c;
-
-        SimpleDateFormat mDate = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
-        SimpleDateFormat showDate = new SimpleDateFormat("yyyy-MM-dd", Locale.KOREA);
-
-        Date now = showDate.parse(item.getDate(), new ParsePosition(0));
-        String sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", mDate.format(now));
-        c = db.rawQuery(sql, null);
         c.moveToFirst();
 
         do{

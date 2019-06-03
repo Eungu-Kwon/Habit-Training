@@ -3,8 +3,6 @@ package com.eungu.habittraining;
 import android.app.Activity;
 import android.widget.Toast;
 
-import com.unity3d.player.UnityPlayer;
-
 public class BackPressCloseHandler {
     private long backKeyPressedTime = 0;
     private Toast toast;

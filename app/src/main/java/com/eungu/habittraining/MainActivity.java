@@ -41,6 +41,7 @@ public class MainActivity extends Activity {
     private Cursor c;
     private int level = -1, phase = -1, days = -1, rested = -1;
     private UnityPlayer m_UnityPlayer;
+    private String now;
 
     AlertDialog.Builder alertDialogBuilder;
 
@@ -74,7 +75,7 @@ public class MainActivity extends Activity {
         calendar.add(Calendar.DAY_OF_YEAR, c.getInt(0));
         Date today = calendar.getTime();
         String now = mDate.format(today);
-
+        this.now = now;
         sql = String.format("SELECT * FROM grown");
         c = _db.rawQuery(sql, null);
         c.moveToFirst();
@@ -158,7 +159,6 @@ public class MainActivity extends Activity {
                 listenerNegative = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        m_UnityPlayer.UnitySendMessage("listener", "GrowUp", phase + "");
                         dialog.cancel();
                     }
                 };
@@ -173,7 +173,7 @@ public class MainActivity extends Activity {
                     public void onClick(DialogInterface dialog, int which) {
                         items.get(idx).reverseDone();
                         db = m_helper.getWritableDatabase();
-                        db.execSQL(String.format("UPDATE training SET done = %d WHERE title = '%s'", items.get(idx).isDone(), items.get(idx).getName()));
+                        db.execSQL(String.format("UPDATE training SET done = %d WHERE title = '%s' AND today = '%s';", items.get(idx).isDone(), items.get(idx).getName(), now));
                         db.close();
                         LoadIcon(items.get(idx));
                         adapter.notifyDataSetChanged();
@@ -372,9 +372,8 @@ public class MainActivity extends Activity {
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
-                Toast.makeText(getApplicationContext(), "Pressed List", Toast.LENGTH_SHORT).show();
                 // toggle clicked cell state
-                ((FoldingCell) view).toggle(true);
+                ((FoldingCell) view).toggle(false);
                 // register in adapter that state for selected cell is toggled
                 adapter.registerToggle(pos);
             }
