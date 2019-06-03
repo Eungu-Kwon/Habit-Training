@@ -351,19 +351,19 @@ public class MainActivity extends Activity {
 
         Calendar calendar = Calendar.getInstance();
         int temp = c.getInt(0);
-        calendar.add(Calendar.DAY_OF_YEAR, temp);
+        calendar.add(Calendar.DAY_OF_YEAR, temp - 1);
 
         Date curr = calendar.getTime();
 
         c = db.rawQuery(String.format("SELECT * FROM training WHERE today LIKE '%s';", mDate.format(curr)), null);
         while(true){
-            if(mDate.format(firstDate).compareTo(mDate.format(curr)) == 0 || mDate.format(firstDate).compareTo(mDate.format(curr)) == 1) break;
-
+            if(temp == 0) break;
             FoldingCellItem item = new FoldingCellItem(showDate.format(curr), "name", true);
             items.add(item);
 
-            calendar.add(Calendar.DAY_OF_YEAR, 1);
-            firstDate = calendar.getTime();
+            if(mDate.format(firstDate).compareTo(mDate.format(curr)) >= 0) break;
+            calendar.add(Calendar.DAY_OF_YEAR, -1);
+            curr = calendar.getTime();
         }
 
 

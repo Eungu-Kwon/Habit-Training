@@ -1,6 +1,8 @@
 package com.eungu.habittraining;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +15,13 @@ import android.widget.TextView;
 
 import com.ramotion.foldingcell.FoldingCell;
 
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 public class ListViewAdapter extends BaseAdapter {
     private LayoutInflater inflater;
@@ -158,23 +164,28 @@ class FoldingCellListAdapter extends ArrayAdapter<FoldingCellItem>{
         viewHolder.doIcon.setImageResource(R.drawable.checkbox_checked);
 
         final ArrayList<ListViewItem> items = new ArrayList<>();
-        ListViewItem item1 = new ListViewItem(R.drawable.checkbox_blank, "000");
-        item1.setIcon(R.drawable.checkbox_blank);
-        items.add(item1);
 
-        ListViewItem item2 = new ListViewItem(R.drawable.checkbox_blank, "321");
-        item2.setIcon(R.drawable.checkbox_blank);
-        items.add(item2);
+        DBHelper m_helper = new DBHelper(context, "training.db", null, 1);;
+        SQLiteDatabase db = m_helper.getReadableDatabase();;
+        Cursor c;
 
-        ListViewItem item3 = new ListViewItem(R.drawable.checkbox_blank, "222");
-        item3.setIcon(R.drawable.checkbox_blank);
-        items.add(item3);
-        items.add(item3);
-        items.add(item3);
-        items.add(item3);
+        SimpleDateFormat mDate = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
+        SimpleDateFormat showDate = new SimpleDateFormat("yyyy-MM-dd", Locale.KOREA);
+
+        Date now = showDate.parse(item.getDate(), new ParsePosition(0));
+        String sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", mDate.format(now));
+        c = db.rawQuery(sql, null);
+        c.moveToFirst();
+
+        do{
+            ListViewItem item1 = new ListViewItem(R.drawable.checkbox_blank, c.getString(1));
+            if(c.getInt(2) == 1) item1.setIcon(R.drawable.checkbox_checked);
+            else item1.setIcon(R.drawable.checkbox_blank);
+            items.add(item1);
+        }while(c.moveToNext());
 
         ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) viewHolder.contentList.getLayoutParams();
-        lp.height = (384 + 32) * (int)context.getResources()
+        lp.height = (((c.getCount() + 1) * 64) + 32) * (int)context.getResources()    //64 * num + 32
                 .getDisplayMetrics()
                 .density;
         viewHolder.contentList.setLayoutParams(lp);
