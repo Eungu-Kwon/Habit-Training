@@ -26,7 +26,10 @@ public class ShowStartingPage extends Activity {
         m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
         db = m_helper.getReadableDatabase();
         c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='grown';", null);
-        if(c.getCount() > 0){
+        Cursor c1 = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='todolist';", null);
+        Cursor c2 = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='training';", null);
+        Cursor c3 = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='debug';", null);
+        if(c.getCount() > 0 && c1.getCount() > 0 && c2.getCount() > 0 && c3.getCount() > 0){
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(intent);
             overridePendingTransition(R.anim.fadein, R.anim.fadeout);
@@ -34,6 +37,7 @@ public class ShowStartingPage extends Activity {
             finish();
             return;
         }
+
         db.close();
         setContentView(R.layout.starting_page);
         final TextView textView = (TextView)findViewById(R.id.newtext);

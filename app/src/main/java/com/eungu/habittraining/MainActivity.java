@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -113,14 +114,14 @@ public class MainActivity extends Activity {
         sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", now);
         c = _db.rawQuery(sql, null);
 
-        if(c.getCount() == 0){
+        if(c.getCount() == 0 && isClear() == false){
             if(DidCompleteYesterday() == false){
                 rested += 1;
-                Toast.makeText(getApplicationContext(), "aa", Toast.LENGTH_LONG).show();
                 _db.execSQL("DROP TABLE IF EXISTS grown;");
                 _db.execSQL("CREATE TABLE grown (_id INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, days INTEGER, rested INTEGER, phase INTEGER);");
                 _db.execSQL(String.format("INSERT INTO grown VALUES (NULL, %d, %d, %d, %d);", level, days, rested, phase));
             }
+            sql = String.format("SELECT * FROM todolist");
             sql = String.format("SELECT * FROM todolist");
             Cursor listC = _db.rawQuery(sql, null);
             listC.moveToFirst();
@@ -388,11 +389,19 @@ public class MainActivity extends Activity {
         c = db.rawQuery(String.format("SELECT * FROM training WHERE today LIKE '%s';", mDate.format(curr)), null);
         while(true){
             if(temp == 0) break;
+            if(c.getCount() == 0) {
+                calendar.add(Calendar.DAY_OF_YEAR, -1);
+                curr = calendar.getTime();
+                c = db.rawQuery(String.format("SELECT * FROM training WHERE today LIKE '%s';", mDate.format(curr)), null);
+                Log.d("mTag", curr.toString());
+                continue;
+            }
             FoldingCellItem item = new FoldingCellItem(showDate.format(curr), "name", true);
             items.add(item);
             if(mDate.format(firstDate).compareTo(mDate.format(curr)) >= 0) break;
             calendar.add(Calendar.DAY_OF_YEAR, -1);
             curr = calendar.getTime();
+            c = db.rawQuery(String.format("SELECT * FROM training WHERE today LIKE '%s';", mDate.format(curr)), null);
         }
         if(temp != 0) findViewById(R.id.text_none_data).setVisibility(View.GONE);
 
