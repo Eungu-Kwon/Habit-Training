@@ -1,6 +1,13 @@
 package com.eungu.habittraining;
 
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.view.View;
+
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class ListViewItem {
     private int icon;
@@ -41,6 +48,26 @@ class FoldingCellItem {
         this.done = done;
     }
 
+    public boolean isDone(SQLiteDatabase db){
+        Cursor c;
+
+        SimpleDateFormat mDate = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
+        SimpleDateFormat showDate = new SimpleDateFormat("yyyy-MM-dd", Locale.KOREA);
+
+        Date now = showDate.parse(date, new ParsePosition(0));
+
+        String sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", mDate.format(now));
+        c = db.rawQuery(sql, null);
+        c.moveToFirst();
+
+        boolean checkDone = true;
+        do{
+            if(c.getInt(2) == -1) checkDone = false;
+        }while(c.moveToNext());
+        setDone(checkDone);
+        return checkDone;
+    }
+
     public String getDate() {
         return date;
     }
@@ -55,10 +82,6 @@ class FoldingCellItem {
 
     public void setListName(String listName) {
         this.listName = listName;
-    }
-
-    public boolean isDone() {
-        return done;
     }
 
     public void setDone(boolean done) {

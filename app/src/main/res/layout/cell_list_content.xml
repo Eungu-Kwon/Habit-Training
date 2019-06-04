@@ -3,7 +3,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorAccent"
+    android:background="@drawable/round"
     android:visibility="gone"
     android:descendantFocusability="blocksDescendants">
 
@@ -11,8 +11,10 @@
         android:id="@+id/dateContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:textColor="#000000"
         android:text="YYYY-MM-dd"
-        android:textSize="30dp"/>
+        android:textSize="35sp"/>
 
     <FrameLayout
         android:layout_width="match_parent"

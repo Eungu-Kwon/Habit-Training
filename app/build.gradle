@@ -6,8 +6,8 @@ android {
         applicationId "com.eungu.habittraining"
         minSdkVersion 18
         targetSdkVersion 28
-        versionCode 7
-        versionName "0.1.1"
+        versionCode 8
+        versionName "0.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

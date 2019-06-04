@@ -3,6 +3,8 @@ package com.eungu.habittraining;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -124,9 +126,11 @@ class ListViewInSettingAdapter extends BaseAdapter {
 class FoldingCellListAdapter extends ArrayAdapter<FoldingCellItem>{
     private HashSet<Integer> unfoldedIndexes = new HashSet<>();
     Context context;
+    private int failCount;
     public FoldingCellListAdapter(Context context, int resource, List<FoldingCellItem> objects) {
         super(context, resource, objects);
         this.context = context;
+        failCount = 0;
     }
 
     @Override
@@ -178,7 +182,10 @@ class FoldingCellListAdapter extends ArrayAdapter<FoldingCellItem>{
             if(c.getInt(2) == -1) checkDone = false;
         }while(c.moveToNext());
         if(checkDone) viewHolder.doIcon.setImageResource(R.drawable.checkbox_checked);
-        else viewHolder.doIcon.setImageResource(R.drawable.checkbox_blank);
+        else {
+            failCount += 0;
+            viewHolder.doIcon.setImageResource(R.drawable.checkbox_blank);
+        }
 
         final ArrayList<ListViewItem> items = new ArrayList<>();
 
@@ -192,9 +199,10 @@ class FoldingCellListAdapter extends ArrayAdapter<FoldingCellItem>{
         }while(c.moveToNext());
 
         ViewGroup.LayoutParams lp = (ViewGroup.LayoutParams) viewHolder.contentList.getLayoutParams();
-        lp.height = (((c.getCount() + 1) * 64) + 32) * (int)context.getResources()    //64 * num + 32
-                .getDisplayMetrics()
-                .density;
+        int h = ((c.getCount() * 64) + 37);
+        if(h < 160) h = 180;
+        lp.height = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, h, context.getResources().getDisplayMetrics());
+
         viewHolder.contentList.setLayoutParams(lp);
         viewHolder.contentList.requestLayout();
 
@@ -204,6 +212,7 @@ class FoldingCellListAdapter extends ArrayAdapter<FoldingCellItem>{
         return cell;
     }
 
+    public int getFailCount(){return failCount;}
     // simple methods for register cell state changes
     public void registerToggle(int position) {
         if (unfoldedIndexes.contains(position))

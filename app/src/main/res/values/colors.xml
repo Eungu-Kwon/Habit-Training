@@ -10,6 +10,18 @@
     <color name="colorBGold">#2a3d3e</color>
     <color name="colorTXT1">#2d323b</color>
     <color name="colorTXT2">#fef0c3</color>
+
+    <!--<color name="colorPPT1">#b7d0d4</color>-->
+    <color name="colorBUTT1">#5a9ca1</color>
+    <!--<color name="colorPPT3">#4b6580</color>-->
+    <!--<color name="colorPPT4">#7c7f85</color>-->
+    <!--<color name="colorPPT5">#f7ae4b</color>-->
+    <color name="colorBUTT">#9ecce2</color>
+    <color name="colorPPT1">#f7c45f</color>
+    <color name="colorPPT2">#ed7d28</color>
+    <color name="colorPPT3">#d85633</color>
+    <color name="colorPPT4">#3b3838</color>
+    <color name="colorPPT5">#767171</color>
     <!--#1a1619-->
     <color name="colorTXT1old">#f8e5e0</color>
 </resources>

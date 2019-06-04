@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorBG"
+    android:background="@color/colorPPT1"
     android:clipChildren="false"
     android:clipToPadding="false">
 
@@ -44,7 +44,7 @@
                     android:clipChildren="false"
                     android:clipToPadding="false">
 
-                    <LinearLayout
+                    <FrameLayout
                         android:id="@+id/tab1"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -55,10 +55,15 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_marginHorizontal="50dp" />
+                        <TextView
+                            android:id="@+id/text_fail"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"/>
 
-                    </LinearLayout>
+                    </FrameLayout>
 
-                    <LinearLayout
+                    <FrameLayout
                         android:id="@+id/tab2"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -71,7 +76,13 @@
                             android:layout_marginHorizontal="20dp"
                             android:clipChildren="false"
                             android:clipToPadding="false"/>
-                    </LinearLayout>
+                        <TextView
+                            android:id="@+id/text_none_data"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:text="아직 데이터가 없습니다!"/>
+                    </FrameLayout>
 
                     <LinearLayout
                         android:id="@+id/tab3"
@@ -98,7 +109,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginHorizontal="50dp"
-                                android:layout_marginTop="100dp"
+                                android:layout_marginTop="50dp"
                                 android:layout_weight="1"
                                 android:text="내일로 이동(디버그)" />
                         </LinearLayout>

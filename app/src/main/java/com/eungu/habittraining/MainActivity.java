@@ -18,6 +18,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.TabHost;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ramotion.foldingcell.FoldingCell;
@@ -42,6 +43,7 @@ public class MainActivity extends Activity {
     private int level = -1, phase = -1, days = -1, rested = -1;
     private UnityPlayer m_UnityPlayer;
     private String now;
+    private boolean isFailed;
 
     AlertDialog.Builder alertDialogBuilder;
 
@@ -51,14 +53,38 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        isFailed = false;
         backPressCloseHandler = new BackPressCloseHandler(this);
 
         InitializeToday();
+        MakePassedDataList();
         loadUnityView();
         MakeTabs();
-        MakeGoalList();
-        MakePassedDataList();
+        SetCheckFailed();
+        if(isClear()){
+            TextView tv = findViewById(R.id.text_fail);
+            tv.setText("모든 목표를 달성하였습니다.\n수고하셨습니다!!");
+        }
+        else if(isFailed == false) {
+            findViewById(R.id.text_fail).setVisibility(View.GONE);
+            MakeGoalList();
+        }
+        else {
+            TextView tv = findViewById(R.id.text_fail);
+            tv.setText(rested + "회 목표를 달성하지 못하였습니다...\n초기화 후 다시 해주세요.");
+        }
+    }
+
+    private boolean isClear(){
+        switch (level){
+            case 1:
+                if(phase == 4) return true;
+        }
+        return false;
+    }
+
+    private void SetCheckFailed(){
+        if(rested >= 3) isFailed = true;
     }
 
     private void InitializeToday(){
@@ -90,9 +116,10 @@ public class MainActivity extends Activity {
         if(c.getCount() == 0){
             if(DidCompleteYesterday() == false){
                 rested += 1;
-                db.execSQL("DROP TABLE IF EXISTS grown;");
-                db.execSQL("CREATE TABLE grown (_id INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, days INTEGER, rested INTEGER, phase INTEGER);");
-                db.execSQL(String.format("INSERT INTO grown VALUES (NULL, %d, %d, %d, %d);", level, days, rested, phase));
+                Toast.makeText(getApplicationContext(), "aa", Toast.LENGTH_LONG).show();
+                _db.execSQL("DROP TABLE IF EXISTS grown;");
+                _db.execSQL("CREATE TABLE grown (_id INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, days INTEGER, rested INTEGER, phase INTEGER);");
+                _db.execSQL(String.format("INSERT INTO grown VALUES (NULL, %d, %d, %d, %d);", level, days, rested, phase));
             }
             sql = String.format("SELECT * FROM todolist");
             Cursor listC = _db.rawQuery(sql, null);
@@ -120,8 +147,9 @@ public class MainActivity extends Activity {
         int temp = c.getInt(0);
         calendar.add(Calendar.DAY_OF_YEAR, temp - 1);
         Date yesterday = calendar.getTime();
+        SimpleDateFormat mDate = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
 
-        sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", yesterday);
+        sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", mDate.format(yesterday));
         c = _db.rawQuery(sql, null);
         if(c.getCount() == 0) return true;
 
@@ -208,6 +236,7 @@ public class MainActivity extends Activity {
                         db.execSQL("CREATE TABLE debug (day INTEGER);");
                         String sql = String.format("INSERT INTO debug VALUES (%d);", temp + 1);
                         db.execSQL(sql);
+
                         MainActivity.this.finish();
                     }
                 };
@@ -250,7 +279,8 @@ public class MainActivity extends Activity {
                 .addSizes(new Size(12, 5f))
                 .setPosition(-50f, konfettiView.getWidth() + 50f, -50f, -50f)
                 .streamFor(300, 2000L);
-        Toast.makeText(getApplicationContext(), "목표를 달성하였습니다.\n수고하셨습니다!", Toast.LENGTH_LONG).show();
+        if(!isClear()) Toast.makeText(getApplicationContext(), "목표를 달성하였습니다.\n수고하셨습니다!", Toast.LENGTH_LONG).show();
+        else Toast.makeText(getApplicationContext(), "꽃이 피었습니다!\n수고하셨습니다!", Toast.LENGTH_LONG).show();
         return;
     }
 
@@ -360,15 +390,15 @@ public class MainActivity extends Activity {
             if(temp == 0) break;
             FoldingCellItem item = new FoldingCellItem(showDate.format(curr), "name", true);
             items.add(item);
-
             if(mDate.format(firstDate).compareTo(mDate.format(curr)) >= 0) break;
             calendar.add(Calendar.DAY_OF_YEAR, -1);
             curr = calendar.getTime();
         }
-
+        if(temp != 0) findViewById(R.id.text_none_data).setVisibility(View.GONE);
 
         final FoldingCellListAdapter adapter = new FoldingCellListAdapter(this, R.layout.cell, items);
         listview.setAdapter(adapter);
+
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int pos, long l) {
