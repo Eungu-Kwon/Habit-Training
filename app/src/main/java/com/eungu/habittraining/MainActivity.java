@@ -71,12 +71,18 @@ public class MainActivity extends Activity {
             TextView tv = findViewById(R.id.text_fail);
             tv.setText("3회이상 목표를 달성하지 못하였습니다...\n초기화 후 다시 해주세요.");
         }
+        int temp = (level * 10) + phase;
+        if(isFailed() == true) temp = 90;
+        m_UnityPlayer.UnitySendMessage("listener", "PlantInit", temp + "");
+        Log.d("unityTag", "sended!");
     }
 
     private boolean isClear(){
         switch (level){
             case 1:
-                if(phase == 4) return true;
+                if(phase == 5) return true;
+            case 2:
+                if(phase == 7) return true;
         }
         return false;
     }
@@ -260,11 +266,13 @@ public class MainActivity extends Activity {
         db.execSQL("CREATE TABLE grown (_id INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, days INTEGER, rested INTEGER, phase INTEGER);");
         switch (level){
             case 1:
-                if(days == 0) phase += 1;
-                else if(days == 3) phase += 1;
-                else if(days == 6) phase += 1;
+                if(days == 0 || days % 2 == 0) phase += 1;
+                break;
+            case 2:
+                if(days == 0 || days == 2 || days == 5 || days == 7 || days == 10 || days == 13) phase += 1;
                 break;
         }
+
         m_UnityPlayer.UnitySendMessage("listener", "GrowUp", phase + "");
         db.execSQL(String.format("INSERT INTO grown VALUES (NULL, %d, %d, %d, %d);", level, days + 1, rested, phase));
         KonfettiView konfettiView = findViewById(R.id.viewKonfetti);
@@ -481,8 +489,10 @@ public class MainActivity extends Activity {
     {
         super.onStart();
         m_UnityPlayer.start();
-        int temp = (level * 10) + phase;
-        m_UnityPlayer.UnitySendMessage("listener", "PlantInit", temp + "");
+//        int temp = (level * 10) + phase;
+//        if(isFailed() == true) temp = 90;
+        Log.d("unityTag", "started!");
+        //m_UnityPlayer.UnitySendMessage("listener", "PlantInit", temp + "");
     }
 
     @Override protected void onStop()

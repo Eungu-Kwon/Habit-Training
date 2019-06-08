@@ -42,14 +42,31 @@
             android:text="추가" />
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/list_in_setting"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginHorizontal="40dp"
-        android:layout_weight="1"
-        android:layout_marginBottom="30dp"
-        android:layout_marginTop="50dp"/>
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@+id/list_in_setting"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="40dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="30dp"
+            android:layout_weight="1">
+
+        </ListView>
+
+        <TextView
+            android:id="@+id/text_in_goal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:text="구체적이고 간결하게 목표를 정해주세요!\n예) 운동 x -> 스쿼트 20회\n공부 x -> 영단어 50개 암기" />
+
+    </FrameLayout>
 
     <Button
         android:id="@+id/start_button"

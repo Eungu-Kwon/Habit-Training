@@ -38,12 +38,6 @@
             android:layout_weight="1"
             app:srcCompat="@drawable/num2" />
 
-        <ImageView
-            android:id="@+id/level_5"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            app:srcCompat="@drawable/num3" />
     </LinearLayout>
 
     <TextView

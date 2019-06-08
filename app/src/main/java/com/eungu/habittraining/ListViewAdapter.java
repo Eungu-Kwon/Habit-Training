@@ -181,10 +181,10 @@ class FoldingCellListAdapter extends ArrayAdapter<FoldingCellItem>{
         do{
             if(c.getInt(2) == -1) checkDone = false;
         }while(c.moveToNext());
-        if(checkDone) viewHolder.doIcon.setImageResource(R.drawable.checkbox_checked);
+        if(checkDone) viewHolder.doIcon.setImageResource(R.drawable.check1);
         else {
             failCount += 0;
-            viewHolder.doIcon.setImageResource(R.drawable.checkbox_blank);
+            viewHolder.doIcon.setVisibility(View.INVISIBLE);
         }
 
         final ArrayList<ListViewItem> items = new ArrayList<>();

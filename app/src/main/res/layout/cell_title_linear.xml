@@ -22,6 +22,6 @@
         android:text="텍스트 뷰"
         android:singleLine="true"
         android:textAllCaps="false"
-        android:textSize="26sp" />
+        android:textSize="24sp" />
 
 </LinearLayout>

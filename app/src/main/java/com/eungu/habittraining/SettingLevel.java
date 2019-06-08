@@ -30,7 +30,7 @@ public class SettingLevel extends Activity {
 
         ImageView level0 = (ImageView)findViewById(R.id.level_0);
         ImageView level1 = (ImageView)findViewById(R.id.level_1);
-        ImageView level5 = (ImageView)findViewById(R.id.level_5);
+        //ImageView level5 = (ImageView)findViewById(R.id.level_5);
 
         View.OnClickListener clickImage = new View.OnClickListener() {
             @Override
@@ -38,16 +38,16 @@ public class SettingLevel extends Activity {
                 switch (v.getId()){
                     case R.id.level_0:
                         level = 1;
-                        textView.setText("일주일 동안 목표를 실천합니다.\n(7일)");
+                        textView.setText("일주일 동안 목표를 실천합니다.(7일)\n3일 이상 목표를 미루면 식물을 키우는데에 실패합니다.");
                         break;
                     case R.id.level_1:
                         level = 2;
-                        textView.setText("이주일 동안 목표를 실천합니다.\n(14일)");
+                        textView.setText("이주일 동안 목표를 실천합니다.(14일)\n3일 이상 목표를 미루면 식물을 키우는데에 실패합니다.");
                         break;
-                    case R.id.level_5:
-                        level = 3;
-                        textView.setText("한달간 목표를 실천합니다.\n(30일)");
-                        break;
+//                    case R.id.level_5:
+//                        level = 3;
+//                        textView.setText("한달간 목표를 실천합니다.\n(30일)");
+//                        break;
                 }
             }
         };
@@ -56,8 +56,8 @@ public class SettingLevel extends Activity {
         level0.setImageResource(R.drawable.num1);
         level1.setOnClickListener(clickImage);
         level1.setImageResource(R.drawable.num2);
-        level5.setOnClickListener(clickImage);
-        level5.setImageResource(R.drawable.num3);
+//        level5.setOnClickListener(clickImage);
+//        level5.setImageResource(R.drawable.num3);
 
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
@@ -32,6 +34,7 @@ public class SettingNewGoal extends Activity {
         m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
 
         addButton = (Button)findViewById(R.id.add_goal_button);
+        final TextView text_info = (TextView)findViewById(R.id.text_in_goal);
         Button startButton = (Button)findViewById(R.id.start_button);
         final EditText inputField = (EditText)findViewById(R.id.text_input);
 
@@ -49,17 +52,30 @@ public class SettingNewGoal extends Activity {
                     Toast.makeText(getApplicationContext(), "목표를 입력해주세요!", Toast.LENGTH_LONG).show();
                     return;
                 }
+                if(list.size() == 0) text_info.setVisibility(View.GONE);
                 if(v.getId() == R.id.add_goal_button){
                     imm.hideSoftInputFromWindow(inputField.getWindowToken(), 0);
                 }
                 list.add(new ListViewItemInSetting(inputField.getText().toString()));
                 inputField.setText("");
+
                 adapter.notifyDataSetChanged();
             }
         };
 
         addButton.setOnClickListener(listener);
 
+        inputField.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                switch (keyCode){
+                    case KeyEvent.KEYCODE_ENTER:
+                        if(event.getAction() == KeyEvent.ACTION_DOWN) addButton.performClick();
+                        break;
+                }
+                return false;
+            }
+        });
         startButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -88,11 +104,11 @@ public class SettingNewGoal extends Activity {
         });
     }
 
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if(keyCode == KeyEvent.KEYCODE_ENTER){
-            addButton.performClick();
-        }
-        return super.onKeyUp(keyCode, event);
-    }
+//    @Override
+//    public boolean onKeyUp(int keyCode, KeyEvent event) {
+//        if(keyCode == KeyEvent.KEYCODE_ENTER){
+//            addButton.performClick();
+//        }
+//        return super.onKeyUp(keyCode, event);
+//    }
 }
