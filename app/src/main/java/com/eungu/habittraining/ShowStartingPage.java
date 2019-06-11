@@ -18,7 +18,7 @@ public class ShowStartingPage extends Activity {
     private SQLiteDatabase db;
     private Cursor c;
     private int phase;
-    private final int DELAYTIME = 100;
+    private final int DELAYTIME = 300;
     private boolean canPress;
     @Override
     protected void onCreate( Bundle savedInstanceState) {
@@ -53,19 +53,19 @@ public class ShowStartingPage extends Activity {
                 switch (phase){
                     case 2:
                         textView.startAnimation(fadein);
-                        textView.setText("본 어플은\n심리학의 이해수업을 듣고\n강의 내용을 기초로 제작되었습니다.");
+                        textView.setText("뇌와의 게임에서 승리하고 싶다면\n작은 습관을 매일\n조금씩 천천히 실천하세요.");
                         textView.setTextSize(20);
                         phase+=1;
                         break;
                     case 4:
                         textView.startAnimation(fadein);
-                        textView.setText("목표를 설정하고 달성하면,\n이차 강화물을 얻어 습관이 강화되고\n특정 행동이 조성됩니다.\n(조작적 조건형성)");
+                        textView.setText("작은 일을 매일매일 실행하는 것은\n하루에 많은 일을 하는 것 보다\n더 큰 영향력을 발휘합니다.");
                         textView.setTextSize(20);
                         phase+=1;
                         break;
                     case 6:
                         textView.startAnimation(fadein);
-                        textView.setText("이제\n목표를 설정하세요.");
+                        textView.setText("작게\n사소하게\n가볍게 시작하라!");
                         textView.setTextSize(40);
                         phase+=1;
                         break;

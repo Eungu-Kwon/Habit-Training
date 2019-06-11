@@ -74,7 +74,6 @@ public class MainActivity extends Activity {
         int temp = (level * 10) + phase;
         if(isFailed() == true) temp = 90;
         m_UnityPlayer.UnitySendMessage("listener", "PlantInit", temp + "");
-        Log.d("unityTag", "sended!");
     }
 
     private boolean isClear(){
@@ -119,38 +118,49 @@ public class MainActivity extends Activity {
         c = _db.rawQuery(sql, null);
 
         if(c.getCount() == 0 && isClear() == false && isFailed() == false){
-            if(DidCompleteYesterday() == false){
-                rested += 1;
-                _db.execSQL("DROP TABLE IF EXISTS grown;");
-                _db.execSQL("CREATE TABLE grown (_id INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, days INTEGER, rested INTEGER, phase INTEGER);");
-                _db.execSQL(String.format("INSERT INTO grown VALUES (NULL, %d, %d, %d, %d);", level, days, rested, phase));
-            }
             sql = String.format("SELECT * FROM todolist");
-            sql = String.format("SELECT * FROM todolist");
-            Cursor listC = _db.rawQuery(sql, null);
-            listC.moveToFirst();
-            for(int i = 0; i < listC.getCount(); i++){
-                String itemName = listC.getString(1);
-                sql = String.format("INSERT INTO training VALUES ('%s', '%s', -1);", now, itemName);
-                _db.execSQL(sql);
-                listC.moveToNext();
+            c = _db.rawQuery(sql, null);
+            c.moveToFirst();
+            String firstDate = c.getString(2);
+            while(!mDate.format(calendar.getTime()).equals(firstDate)){
+                sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", now);
+                c = _db.rawQuery(sql, null);
+                if(c.getCount() != 0) break;
+                if(DidCompleteYesterday(calendar) == false){
+                    rested += 1;
+                    _db.execSQL("DROP TABLE IF EXISTS grown;");
+                    _db.execSQL("CREATE TABLE grown (_id INTEGER PRIMARY KEY AUTOINCREMENT, level INTEGER, days INTEGER, rested INTEGER, phase INTEGER);");
+                    _db.execSQL(String.format("INSERT INTO grown VALUES (NULL, %d, %d, %d, %d);", level, days, rested, phase));
+                }
+                calendar.add(Calendar.DAY_OF_YEAR, 1);
+                now = mDate.format(calendar.getTime());
+
+                sql = String.format("SELECT * FROM todolist");
+                Cursor listC = _db.rawQuery(sql, null);
+                listC.moveToFirst();
+                for(int i = 0; i < listC.getCount(); i++){
+                    String itemName = listC.getString(1);
+                    sql = String.format("INSERT INTO training VALUES ('%s', '%s', -1);", now, itemName);
+                    _db.execSQL(sql);
+                    listC.moveToNext();
+                }
+                calendar.add(Calendar.DAY_OF_YEAR, -1);
             }
         }
 
         _db.close();
     }
 
-    public boolean DidCompleteYesterday(){
+    public boolean DidCompleteYesterday(Calendar calendar){
         m_helper = new DBHelper(getApplicationContext(), "training.db", null, 1);
         SQLiteDatabase _db = m_helper.getReadableDatabase();
-
         String sql = String.format("SELECT * FROM debug;");
         c = _db.rawQuery(sql, null);
         c.moveToFirst();
 
-        Calendar calendar = Calendar.getInstance();
-        int temp = c.getInt(0);
-        calendar.add(Calendar.DAY_OF_YEAR, temp - 1);
+        //Calendar calendar = Calendar.getInstance();
+        //int temp = c.getInt(0);
+        calendar.add(Calendar.DAY_OF_YEAR, - 1);
         Date yesterday = calendar.getTime();
         SimpleDateFormat mDate = new SimpleDateFormat("yyyyMMdd", Locale.KOREA);
 
@@ -341,7 +351,6 @@ public class MainActivity extends Activity {
         calendar.add(Calendar.DAY_OF_YEAR, c.getInt(0));
         Date today = calendar.getTime();
         String now = mDate.format(today);
-
         sql = String.format("SELECT * FROM training WHERE today LIKE '%s';", now);
         c = db.rawQuery(sql, null);
         c.moveToFirst();

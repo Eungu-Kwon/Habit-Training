@@ -10,8 +10,8 @@
         android:id="@+id/newtext"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="안녕하세요"
+        android:text="습관이란 인간으로 하여금 그 어떤 일도\n할 수 있게 만들어준다.\n-표도르 도스토옙스키-"
         android:textColor="#000000"
         android:gravity="center"
-        android:textSize="60sp"/>
+        android:textSize="20sp"/>
 </FrameLayout>
